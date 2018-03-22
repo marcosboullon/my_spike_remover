@@ -22,7 +22,9 @@ insert into pruebas (parcela) values (st_geomfromtext('POLYGON((0 0, 10 0, 10 10
 
 simplifica correctamente
 
-datos reales:
+datos reales !!!!! línea 25 modificada!!!!:
+
+!!! añadida línea 27!!!
 
 select lt_spikeremover(st_geometryn(the_geom, 1), 0.01) from (select * from salida limit 5) as tmp;
 
