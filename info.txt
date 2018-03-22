@@ -1,0 +1,57 @@
+PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres parcelario
+parcelario=# create table pruebas (id serial primary key, parcela geometry);
+CREATE TABLE
+parcelario=# insert into pruebas select 1, wkb_geometry from parcela limit 1; 
+INSERT 0 1
+
+PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres -f lt_spikeremover.sql parcelario
+select st_astext(lt_spikeremover(st_geometryn(parcela, 1), 0.1)) from pruebas;
+
+                                                               st_astext                                                                
+----------------------------------------------------------------------------------------------------------------------------------------
+ POLYGON((522326.0082 4684369.7029,522305.3341 4684377.7715,522309.0597 4684383.6005,522329.4921 4684375.466,522326.0082 4684369.7029))
+(1 fila)
+
+vamos a simplificar y trabajar siempre con polígonos
+
+POLYGON((0 0, 10 0, 10 10, 5.5 10, 5.5 20, 5.4 10, 0 10, 0 0))
+insert into pruebas (parcela) values (st_geomfromtext('POLYGON((0 0, 10 0, 10 10, 5.5 10, 5.5 20, 5.4 10, 0 10, 0 0))'));
+
+POLYGON((0 0, 10 0, 10 10, 5.5 10, 5.5 20, 0 20, 5.5 19.9, 5.4 10, 0 10, 0 0))
+insert into pruebas (parcela) values (st_geomfromtext('POLYGON((0 0, 10 0, 10 10, 5.5 10, 5.5 20, 5.4 10, 0 10, 0 0))'));
+
+simplifica correctamente
+
+datos reales:
+
+select lt_spikeremover(st_geometryn(the_geom, 1), 0.01) from (select * from salida limit 5) as tmp;
+
+select st_area(st_geomfromtext('POLYGON((656706.3396 4742096.6645,656707.3108 4742094.4519,656707.2989 4742094.4747,656706.3396 4742096.6645))'));
+       st_area       
+---------------------
+ 0.00209328973114187
+
+---
+marcos@struve:~/Escritorio/spike_remover$ PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres -f test.sql parcelario
+CREATE FUNCTION
+CREATE FUNCTION
+marcos@struve:~/Escritorio/spike_remover$ PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres parcelario
+marcos@struve:~/Escritorio/spike_remover$ PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres -c "select lt_spikeremover2(parcela, 0.01) from pruebas;" parcelario > /tmp/stdout 2> /tmp/stderr
+
+$ PGPASSWORD=postgres psql -h 172.22.17.28 -U postgres -c "insert into salida4 (provincia, municipio, mun_par, the_geom) select provincia, municipio, mun_par, st_multi(lt_spikeremover2(st_geometryn(the_geom, 1), 0.01)) from salida;" parcelario > /tmp/stdout 2> /tmp/stderr
+
+# insert into salida4 (provincia, municipio, mun_par, the_geom) select provincia, municipio, mun_par, st_multi(lt_spikeremover2(st_geometryn(the_geom, 1), 0.01)) from salida;
+
+# select count(*) from salida4 where the_geom is null;
+ count 
+-------
+   391
+(1 fila)
+
+# select count(*) from salida4 where the_geom is not null;
+ count 
+-------
+  1209
+(1 fila)
+
+

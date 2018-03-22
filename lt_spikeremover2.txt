@@ -1,0 +1,16 @@
+
+# insert into salida4 (provincia, municipio, mun_par, the_geom) select provincia, municipio, mun_par, st_multi(lt_spikeremover2(st_geometryn(the_geom, 1), 0.01)) from salida;
+
+# select count(*) from salida4 where the_geom is null;
+ count 
+-------
+   391
+(1 fila)
+
+# select count(*) from salida4 where the_geom is not null;
+ count 
+-------
+  1209
+(1 fila)
+
+

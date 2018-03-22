@@ -1,0 +1,4 @@
+http://trac.osgeo.org/postgis/wiki/UsersWikiExamplesSpikeRemover
+
+
+Para ello se necesita una capa con geometría de tipo poligono (no multipoligono) y ejecutar una consulta lt_spikeremover.sql, que lleva 2 funciones a ejecutar. Es descargada de la página anterior y modificada por alguna función que cambio de nombre en PostGIS 2 (ST_RemoveRepeatedPoints)
